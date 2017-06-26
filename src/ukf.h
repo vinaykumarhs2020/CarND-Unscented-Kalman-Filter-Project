@@ -102,6 +102,11 @@ public:
    * @param meas_package The measurement at k+1
    */
   void UpdateRadar(MeasurementPackage meas_package);
+
+  // Other functions:
+  void GenerateAugmentedSigmaPoints(MatrixXd& Xsig_aug_);
+  void PredictSigmaPoints(MatrixXd& Xsig_aug_, double delta_t);
+  void PredictMeanAndCovariance(MatrixXd& Xsig_aug_);
 };
 
 #endif /* UKF_H */
