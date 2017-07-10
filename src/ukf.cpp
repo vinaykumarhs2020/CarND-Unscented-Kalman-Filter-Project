@@ -24,10 +24,10 @@ UKF::UKF() {
   P_ = MatrixXd(5, 5);
 
   // Process noise standard deviation longitudinal acceleration in m/s^2
-  std_a_ = 1;
+  std_a_ = 2.5;
 
   // Process noise standard deviation yaw acceleration in rad/s^2
-  std_yawdd_ = 0.30;
+  std_yawdd_ = 1.20;
 
   // Laser measurement noise standard deviation position1 in m
   std_laspx_ = 0.15;
@@ -91,16 +91,16 @@ void UKF::ProcessMeasurement(MeasurementPackage meas_package) {
     // 1. PredictMeasurement
     // std::cout << "Processing measurement" << std::endl;
     double delta_t = (meas_package.timestamp_ - time_us_)/1000000.0;
-    std::cout << "Prediction step" << std::endl;
+    // std::cout << "Prediction step" << std::endl;
     Prediction(delta_t);
     // 2. UpdateState
     if(use_radar_ && meas_package.sensor_type_==MeasurementPackage::RADAR){
       // Process RADAR measurements
-      std::cout << "Radar update" << std::endl;
+      // std::cout << "Radar update" << std::endl;
       UpdateRadar(meas_package);
     } else if(use_laser_ && meas_package.sensor_type_==MeasurementPackage::LASER){
       // Process LASER measurements
-      std::cout << "LiDAR update" << std::endl;
+      // std::cout << "LiDAR update" << std::endl;
       UpdateLidar(meas_package);
     } else {
       // Nothing to do
@@ -128,13 +128,13 @@ void UKF::Prediction(double delta_t) {
   MatrixXd Xsig_aug_(n_aug_, 2*n_aug_+1); // Augmented Sigma Points
 
   // 1. GenerateSigmaPoints
-  std::cout << "GenerateAugmentedSigmaPoints" << std::endl;
+  // std::cout << "GenerateAugmentedSigmaPoints" << std::endl;
   GenerateAugmentedSigmaPoints(Xsig_aug_);
   // 2. PredictSigmaPoints
-  std::cout << "PredictSigmaPoints" << std::endl;
+  // std::cout << "PredictSigmaPoints" << std::endl;
   PredictSigmaPoints(Xsig_aug_, delta_t);
   // 3. PredictMeanAndCovariance
-  std::cout << "PredictMeanAndCovariance" << std::endl;
+  // std::cout << "PredictMeanAndCovariance" << std::endl;
   PredictMeanAndCovariance(Xsig_aug_);
 
 }
@@ -217,6 +217,10 @@ void UKF::UpdateLidar(MeasurementPackage meas_package) {
   //update state mean and covariance matrix
   x_ = x_ + K * z_diff;
   P_ = P_ - K*S*K.transpose();
+  // Calculate NIS:
+  float nis = z_diff.transpose()*(S.inverse())*z_diff;
+  std::cout << "NIS Lidar: " << nis << std::endl;
+
 }
 
 /**
@@ -309,7 +313,8 @@ void UKF::UpdateRadar(MeasurementPackage meas_package) {
   P_ = P_ - K*S*K.transpose();
 
   // Calculate NIS:
-  
+  float nis = z_diff.transpose()*(S.inverse())*z_diff;
+  std::cout << "NIS Radar: " << nis << std::endl;
 }
 
 void UKF::GenerateAugmentedSigmaPoints(MatrixXd& Xsig_aug_){
@@ -414,15 +419,15 @@ void UKF::ProcessFirstMeasurement(MeasurementPackage& meas_package){
   // Set initial states
   x_ << 0, // x
         0, // y
-        0, // v
-        0, // rho
-        0; // rho_dot
+        1.5, // v
+        0, // phi
+        0.2; // phi_dot
   // Process cov matrix:
-  P_ << 0.1, 0.0, 0.0, 0.0, 0.0,
-        0.0, 0.1, 0.0, 0.0, 0.0,
-        0.0, 0.0, 0.1, 0.0, 0.0,
-        0.0, 0.0, 0.0, 0.1, 0.0,
-        0.0, 0.0, 0.0, 0.0, 0.1;
+  P_ << 0.5, 0.0, 0.0, 0.0, 0.0,
+        0.0, 0.5, 0.0, 0.0, 0.0,
+        0.0, 0.0, 0.5, 0.0, 0.0,
+        0.0, 0.0, 0.0, 1.0, 0.0,
+        0.0, 0.0, 0.0, 0.0, 0.5;
   if(use_radar_ && meas_package.sensor_type_==MeasurementPackage::LASER){
     // Process RADAR measurements
     x_(0) = meas_package.raw_measurements_(0); // Update x from lidar
