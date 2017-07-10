@@ -107,6 +107,7 @@ public:
   void GenerateAugmentedSigmaPoints(MatrixXd& Xsig_aug_);
   void PredictSigmaPoints(MatrixXd& Xsig_aug_, double delta_t);
   void PredictMeanAndCovariance(MatrixXd& Xsig_aug_);
+  void ProcessFirstMeasurement(MeasurementPackage& meas_package);
 };
 
 #endif /* UKF_H */
