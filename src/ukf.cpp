@@ -417,17 +417,17 @@ void UKF::PredictMeanAndCovariance(MatrixXd& Xsig_aug_){
 
 void UKF::ProcessFirstMeasurement(MeasurementPackage& meas_package){
   // Set initial states
-  x_ << 0, // x
-        0, // y
-        1.5, // v
-        0, // phi
-        0.2; // phi_dot
+  x_ << 0.1, // x
+        0.1, // y
+        0.1, // v
+        0.1, // phi
+        0.5; // phi_dot
   // Process cov matrix:
-  P_ << 0.5, 0.0, 0.0, 0.0, 0.0,
-        0.0, 0.5, 0.0, 0.0, 0.0,
-        0.0, 0.0, 0.5, 0.0, 0.0,
-        0.0, 0.0, 0.0, 1.0, 0.0,
-        0.0, 0.0, 0.0, 0.0, 0.5;
+  P_ << 2.8, 0.0, 0.0, 0.0, 0.0,
+        0.0, 2.8, 0.0, 0.0, 0.0,
+        0.0, 0.0, 1.5, 0.0, 0.0,
+        0.0, 0.0, 0.0, 7.5, 0.0,
+        0.0, 0.0, 0.0, 0.0, 1.5;
   if(use_radar_ && meas_package.sensor_type_==MeasurementPackage::LASER){
     // Process RADAR measurements
     x_(0) = meas_package.raw_measurements_(0); // Update x from lidar
