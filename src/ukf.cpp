@@ -24,10 +24,10 @@ UKF::UKF() {
   P_ = MatrixXd(5, 5);
 
   // Process noise standard deviation longitudinal acceleration in m/s^2
-  std_a_ = 2.5;
+  std_a_ = 3.5;
 
   // Process noise standard deviation yaw acceleration in rad/s^2
-  std_yawdd_ = 1.20;
+  std_yawdd_ = 0.80;
 
   // Laser measurement noise standard deviation position1 in m
   std_laspx_ = 0.15;
@@ -111,6 +111,7 @@ void UKF::ProcessMeasurement(MeasurementPackage meas_package) {
     // Initialization from first measurement
     ProcessFirstMeasurement(meas_package);
   }
+  std::cout << "P: " << P_ << std::endl;
 }
 
 /**
@@ -417,17 +418,17 @@ void UKF::PredictMeanAndCovariance(MatrixXd& Xsig_aug_){
 
 void UKF::ProcessFirstMeasurement(MeasurementPackage& meas_package){
   // Set initial states
-  x_ << 0.1, // x
-        0.1, // y
+  x_ << 0.01, // x
+        0.01, // y
         0.1, // v
         0.1, // phi
-        0.5; // phi_dot
+        0.1; // phi_dot
   // Process cov matrix:
-  P_ << 2.8, 0.0, 0.0, 0.0, 0.0,
-        0.0, 2.8, 0.0, 0.0, 0.0,
-        0.0, 0.0, 1.5, 0.0, 0.0,
-        0.0, 0.0, 0.0, 7.5, 0.0,
-        0.0, 0.0, 0.0, 0.0, 1.5;
+  P_ << 0.005, 0.0, 0.0, 0.0, 0.0,
+        0.0, 0.005, 0.0, 0.0, 0.0,
+        0.0, 0.0, 0.15, 0.0, 0.0,
+        0.0, 0.0, 0.0, 0.001, 0.0,
+        0.0, 0.0, 0.0, 0.0, 0.04;
   if(use_radar_ && meas_package.sensor_type_==MeasurementPackage::LASER){
     // Process RADAR measurements
     x_(0) = meas_package.raw_measurements_(0); // Update x from lidar
